@@ -37,6 +37,7 @@ pub async fn main() -> Result<(), Box<dyn std::error::Error>> {
         .route("/cards", get(get_cards))
         .route("/players/{id}/cards", get(get_player_cards))
         .route("/players/{id}/cards", post(add_card_to_player))
+        .route("/matches", post(create_match))
         .with_state(rb); // 传递 rbatis 实例
 
     // 启动服务器
@@ -87,4 +88,24 @@ async fn add_card_to_player(
         Ok(_) => "卡牌添加成功".to_string(),
         Err(e) => format!("添加失败: {}", e),
     }
+}
+
+#[derive(Deserialize)]
+struct CreateMatchRequest {
+    player1_id: i32,
+    player2_id: i32,
+}
+
+async fn create_match(
+    axum::extract::State(rb): axum::extract::State<RBatis>,
+    Json(request): Json<CreateMatchRequest>,
+) -> Json<models::matches::Match> {
+    let new_match = models::matches::create_match(&rb, request.player1_id, request.player2_id)
+        .await
+        .unwrap_or_else(|e| models::matches::Match {
+            status: Some(format!("创建失败: {}", e)),
+            ..Default::default()
+        });
+
+    Json(new_match)
 }

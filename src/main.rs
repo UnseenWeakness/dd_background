@@ -24,7 +24,7 @@ pub async fn main() -> Result<(), Box<dyn std::error::Error>> {
         .with_state(rb); // 传递 rbatis 实例
 
     // 启动服务器
-    let listener = tokio::net::TcpListener::bind("0.0.0.0:8080").await?;
+    let listener = tokio::net::TcpListener::bind("0.0.0.0:46301").await?;
     axum::serve(listener, app).await?;
     Ok(())
 }

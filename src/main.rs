@@ -1,3 +1,5 @@
+mod config;
+
 use axum::routing::get;
 use axum::{Json, Router};
 use log::LevelFilter;
@@ -5,16 +7,25 @@ use rbatis::dark_std::defer;
 use rbatis::RBatis;
 use serde::{Deserialize, Serialize};
 
+
 #[tokio::main]
 pub async fn main() -> Result<(), Box<dyn std::error::Error>> {
+
     _ = fast_log::init(fast_log::Config::new().console().level(LevelFilter::Debug));
     defer!(|| {
         log::logger().flush();
     });
-    let passport = "";
+    // 加载配置文件
+    let config = config::load_config("config.yaml")?;
+    let connect = format!(
+        "postgresql://{}:{}@{}:{}/{}",
+        config.database.username,
+        config.database.password,
+        config.database.host,
+        config.database.port,
+        config.database.dbname
+    );
     let rb = RBatis::new();
-
-    let connect = format!("postgresql://postgres.jjdgbmvjpkcfhuuiwhgq:{}@aws-0-ap-southeast-1.pooler.supabase.com:5432/postgres", passport);
     rb.init(rbdc_pg::driver::PgDriver {}, &connect).unwrap();
 
     // 定义路由

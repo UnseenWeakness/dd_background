@@ -6,7 +6,7 @@ use crate::models::players::Players;
 use axum::extract::Path;
 use axum::routing::{get, post};
 use axum::{Json, Router};
-use log::LevelFilter;
+use log::{info, LevelFilter};
 use rbatis::dark_std::defer;
 use rbatis::RBatis;
 use serde::{Deserialize, Serialize};
@@ -33,6 +33,7 @@ pub async fn main() -> Result<(), Box<dyn std::error::Error>> {
     // 定义路由
     let app = Router::new()
         .route("/", get(root))
+        .route("/info", get(info))
         .route("/players", get(get_players))
         .route("/cards", get(get_cards))
         .route("/players/{id}/cards", get(get_player_cards))
@@ -49,6 +50,10 @@ pub async fn main() -> Result<(), Box<dyn std::error::Error>> {
 // 根路由
 async fn root() -> &'static str {
     "欢迎来到卡牌对战游戏！"
+}
+
+async fn info() -> &'static str {
+    "这是个刺激的对战游戏！"
 }
 
 // 获取所有玩家
